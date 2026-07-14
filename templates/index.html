@@ -3,35 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Writing Tools</title>
+    <title>AI Workspace</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
 
-    <!-- Theme Toggle Button -->
-    <button id="theme-toggle">🌙 Dark Mode</button>
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
+    <div class="bg-orb orb-3"></div>
 
-    <div class="container">
-        <h2>🚀 Most Popular Tools</h2>
-        <p>These are the most popular tools. Click to start generating content.</p>
+    <div class="hero">
+        <h1 class="title">Create with AI</h1>
+        <p class="subtitle">Select a tool below to supercharge your content creation workflow.</p>
+    </div>
 
-        <div class="tool-boxes">
-            <div class="tool" onclick="navigateTo('article')">
-                <h3>📄 Article Generator</h3>
-                <p>Turn a title and an outline into a fully SEO-optimized article.</p>
-            </div>
-            <div class="tool" onclick="navigateTo('blog')">
-                <h3>📝 Blog Post Writer</h3>
-                <p>Quickly write quality blog posts with this AI-powered tool.</p>
-            </div>
-            <div class="tool" onclick="navigateTo('rewrite')">
-                <h3>🔄 Content Rewriter</h3>
-                <p>Rewrite text to make it unique and plagiarism-free.</p>
-            </div>
-            <div class="tool" onclick="navigateTo('paragraph')">
-                <h3>✍️ Paragraph Generator</h3>
-                <p>Generate paragraphs on any topic with a specific tone of voice.</p>
-            </div>
+    <div class="grid">
+        <div class="card" onclick="navigateTo('article')">
+            <div class="card-icon">📄</div>
+            <h3 class="card-title">Article Generator</h3>
+            <p class="card-desc">Turn a title and an outline into a fully SEO-optimized article instantly.</p>
+        </div>
+        <div class="card" onclick="navigateTo('blog')">
+            <div class="card-icon">📝</div>
+            <h3 class="card-title">Blog Post Writer</h3>
+            <p class="card-desc">Quickly write quality blog posts with engaging tones and relevant examples.</p>
+        </div>
+        <div class="card" onclick="navigateTo('rewrite')">
+            <div class="card-icon">🔄</div>
+            <h3 class="card-title">Content Rewriter</h3>
+            <p class="card-desc">Rewrite text to make it unique and plagiarism-free while retaining meaning.</p>
+        </div>
+        <div class="card" onclick="navigateTo('paragraph')">
+            <div class="card-icon">✍️</div>
+            <h3 class="card-title">Paragraph Generator</h3>
+            <p class="card-desc">Generate detailed paragraphs on any topic with a specific tone of voice.</p>
         </div>
     </div>
 
@@ -40,34 +45,26 @@
             window.location.href = "/generate/" + tool;
         }
 
-        // Theme Toggle Logic
-        const themeToggle = document.getElementById("theme-toggle");
-        const body = document.body;
-
-        // Check local storage for theme preference
-        const currentTheme = localStorage.getItem("theme");
-        if (currentTheme) {
-            body.classList.add(currentTheme);
-            if (currentTheme === "dark-theme") {
-                themeToggle.innerHTML = "🌞 Light Mode";
-            }
-        }
-
-        // Toggle theme on button click
-        themeToggle.addEventListener("click", () => {
-            if (body.classList.contains("dark-theme")) {
-                body.classList.remove("dark-theme");
-                body.classList.add("light-theme");
-                themeToggle.innerHTML = "🌙 Dark Mode";
-                localStorage.setItem("theme", "light-theme");
-            } else {
-                body.classList.remove("light-theme");
-                body.classList.add("dark-theme");
-                themeToggle.innerHTML = "🌞 Light Mode";
-                localStorage.setItem("theme", "dark-theme");
-            }
+        // Add 3D tilt effect on cards
+        document.querySelectorAll('.card').forEach(card => {
+            card.addEventListener('mousemove', e => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                
+                const rotateX = ((y - centerY) / centerY) * -10;
+                const rotateY = ((x - centerX) / centerX) * 10;
+                
+                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.05, 1.05, 1.05)`;
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = `perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)`;
+            });
         });
     </script>
-
 </body>
 </html>

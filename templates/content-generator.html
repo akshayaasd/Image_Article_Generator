@@ -8,68 +8,98 @@
 </head>
 <body>
 
-    <!-- Theme Toggle Button -->
-    <button id="theme-toggle">🌙 Dark Mode</button>
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
+    <div class="bg-orb orb-3"></div>
 
-    <div class="container">
-        <h2 id="page-title">🚀 {{ tool_type.replace('_', ' ').title() }}</h2>
-        <p id="page-description"></p>
+    <div class="generator-container">
+        <a href="/" class="back-btn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            Back to Tools
+        </a>
 
-        <input type="text" id="topicInput" placeholder="Enter topic..." />
-        <button onclick="generateContent()">Generate</button>
+        <h1 class="title" style="font-size: 2.5rem; text-align: left; margin-bottom: 10px;">{{ tool_type.replace('_', ' ').title() }}</h1>
+        <p class="subtitle" style="text-align: left; margin-bottom: 30px; opacity: 1;">Describe what you want to create and let AI do the heavy lifting.</p>
+
+        <div class="input-group">
+            <input type="text" id="topicInput" placeholder="Enter your topic here..." autocomplete="off" />
+        </div>
+        <button class="btn-generate" onclick="generateContent()" id="genBtn">
+            Generate Magic ✨
+        </button>
 
         <div id="output"></div>
     </div>
 
     <script>
         function generateContent() {
-    let topic = document.getElementById("topicInput").value.trim();
-    let outputDiv = document.getElementById("output");
+            let topic = document.getElementById("topicInput").value.trim();
+            let outputDiv = document.getElementById("output");
+            let btn = document.getElementById("genBtn");
 
-    if (!topic) {
-        outputDiv.innerHTML = "<p style='color: red;'>Please enter a topic.</p>";
-        return;
-    }
-
-    outputDiv.innerHTML = "<p>⏳ Generating content and image...</p>";
-
-    fetch("/generate-all", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-            topic: topic, 
-            tool_type: "{{ tool_type }}" 
-        })
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.json();
-    })
-    .then(data => {
-        if (data.error) {
-            outputDiv.innerHTML = `<p style='color: red;'>Error: ${data.error}</p>`;
-        } else {
-            let html = `<h3>Generated Content:</h3><p>${data.content}</p>`;
-            
-            if (data.image_url || data.image_base64) {
-                html += `<h3>Generated Image:</h3>
-                        <img src="${data.image_url || data.image_base64}" 
-                            style="max-width: 100%; border-radius: 8px; margin-top: 20px;"
-                            onerror="this.onerror=null;this.parentElement.innerHTML+='<p style=\'color: orange;\'>Image failed to load</p>';" />`;
-            } else {
-                html += `<p style='color: orange;'>Could not generate image (API limit may be reached)</p>`;
+            if (!topic) {
+                outputDiv.innerHTML = "<p style='color: #ef4444; background: rgba(239,68,68,0.1); padding: 15px; border-radius: 12px; margin-top: 20px;'>Please enter a topic.</p>";
+                return;
             }
-            outputDiv.innerHTML = html;
-        }
-    })
-    .catch(error => {
-        outputDiv.innerHTML = `<p style='color: red;'>Error: ${error.message}</p>`;
-        console.error("Error:", error);
-    });
-}
-    </script>
 
+            btn.disabled = true;
+            btn.innerHTML = "<span class='loader'></span> Generating...";
+            btn.style.opacity = "0.7";
+            
+            outputDiv.innerHTML = "";
+
+            fetch("/generate-all", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ 
+                    topic: topic, 
+                    tool_type: "{{ tool_type }}" 
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                btn.disabled = false;
+                btn.innerHTML = "Generate Magic ✨";
+                btn.style.opacity = "1";
+
+                if (data.error) {
+                    outputDiv.innerHTML = `<p style='color: #ef4444; background: rgba(239,68,68,0.1); padding: 15px; border-radius: 12px; margin-top: 20px;'>Error: ${data.error}</p>`;
+                } else {
+                    let html = `<h3>Generated Content</h3>
+                               <div style="background: rgba(255,255,255,0.05); padding: 25px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1);">
+                                   <p>${data.content.replace(/\n/g, '<br>')}</p>
+                               </div>`;
+                    
+                    if (data.image_url || data.image_base64) {
+                        html += `<h3>Accompanying Image</h3>
+                                <img src="${data.image_url || data.image_base64}" 
+                                    onerror="this.style.display='none';this.parentElement.innerHTML+='<p style=\'color: #f59e0b; margin-top: 20px;\'>Image failed to load</p>';" />`;
+                    } else {
+                        html += `<p style='color: #f59e0b; margin-top: 20px;'>No image could be generated.</p>`;
+                    }
+                    outputDiv.innerHTML = html;
+                }
+            })
+            .catch(error => {
+                btn.disabled = false;
+                btn.innerHTML = "Generate Magic ✨";
+                btn.style.opacity = "1";
+                outputDiv.innerHTML = `<p style='color: #ef4444; background: rgba(239,68,68,0.1); padding: 15px; border-radius: 12px; margin-top: 20px;'>Error: ${error.message}</p>`;
+            });
+        }
+
+        // Trigger on enter key
+        document.getElementById("topicInput").addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                generateContent();
+            }
+        });
+    </script>
 </body>
 </html>
